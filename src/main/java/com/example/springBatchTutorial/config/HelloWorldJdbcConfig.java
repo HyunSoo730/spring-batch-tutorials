@@ -1,11 +1,13 @@
 package com.example.springBatchTutorial.config;
 
+import com.example.springBatchTutorial.batch.validatedparam.validator.FileParamValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.*;
+import org.springframework.batch.core.job.CompositeJobParametersValidator;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -13,6 +15,8 @@ import org.springframework.batch.core.step.tasklet.TaskletStep;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
@@ -30,15 +34,24 @@ public class HelloWorldJdbcConfig {
     /**
      * 스프링 배치 5.0 버전부터는 StepBuilderFactory, JobBuilderFactory가 Deprecated되었다.
      * 그래서 이제는 JobRepository를 명시적으로 사용하는 방식으로 해야한다!!!
+     * 하지만 아직 jdk17 보다는 jdk 8,11버전으로 공부하자. 레퍼런스가 훨씬 많다.
+     * 완전히 바뀐게 아니라서 내용은 공부할 수 있어.
      */
 
     @Bean
     public Job helloWorldJob() {
-        Job helloWorldJob = jobBuilderFactory.get("helloWorldJob")  //이름을 정해주고
+        Job helloWorldJob = jobBuilderFactory.get("helloWorldJob")  //이름을 정해주고, get에 써놓은 Job 이름으로 배치를 실행하게 될꺼야.
                 .incrementer(new RunIdIncrementer())  //Job을 실행할 때 id를 부여하는데, Sequence를 순차적으로 부여할 수 있도록 RunIdIncrementer를 해주자.
+                .validator(multipleValidator())
                 .start(helloWorldStep())   //Job안에는 Step이 존재해야해.
                 .build();
         return helloWorldJob;
+    }
+
+    private CompositeJobParametersValidator multipleValidator() {
+        CompositeJobParametersValidator validator = new CompositeJobParametersValidator();
+        validator.setValidators(Arrays.asList(new FileParamValidator()));
+        return validator;
     }
 
     @JobScope
@@ -76,6 +89,7 @@ public class HelloWorldJdbcConfig {
      * Job을 실행시킬 때는 properties에서 설정한 batch.job.names를 파라미터로 넘겨주어야 Job이 실행이 된다.
      * 위에서 Job 이름은 helloWorldJob이기 때문에 파라미터로 넣어주자 !
      *Edit Configurations > Program Parameters에 --spring.batch.job.names=helloWorldJob을 넣어주자.
+     * 아니면 --job.name={Job이름} 이런 식으로 넘기면 돼
      * 그러고 실행하면 돼  !
      */
 
