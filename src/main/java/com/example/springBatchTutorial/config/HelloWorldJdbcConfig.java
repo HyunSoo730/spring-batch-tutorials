@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.JobScope;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.configuration.annotation.*;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -28,6 +25,11 @@ public class HelloWorldJdbcConfig {
      * 두 객체를 활용하여 Job과 Step을 생성할꺼야
      Job은 JobBuilderFactory로 만들고
      Step은 StepBuilderFactory로 만들자.
+     */
+
+    /**
+     * 스프링 배치 5.0 버전부터는 StepBuilderFactory, JobBuilderFactory가 Deprecated되었다.
+     * 그래서 이제는 JobRepository를 명시적으로 사용하는 방식으로 해야한다!!!
      */
 
     @Bean
